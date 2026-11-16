@@ -84,7 +84,16 @@
 
                 <!-- Akkordfamilien (dynamisch) -->
                 <div class="sm:col-span-12">
-                    <div class="block text-sm font-semibold text-slate-700 mb-1">Akkordfamilien</div>
+                    <div class="flex items-center justify-between gap-4 mb-1">
+                        <div class="block text-sm font-semibold text-slate-700">Akkordfamilien</div>
+                        <label class="tricinium-toggle" title="Zeigt die Akkorde nur als Symbol bzw. Abkürzung (z.B. m7) statt ausgeschrieben">
+                            <span class="text-sm text-slate-700">Nur Symbole anzeigen</span>
+                            <input type="checkbox" id="toggle-symbols" checked onchange="renderChordRows()">
+                            <span class="tricinium-toggle-track">
+                                <span class="tricinium-toggle-thumb"></span>
+                            </span>
+                        </label>
+                    </div>
                     <div id="family-filter" class="flex flex-wrap gap-x-5 gap-y-2"></div>
                 </div>
 

@@ -413,8 +413,10 @@ function renderChordRows() {
         rowEl.className = 'bg-[#f8fafc] border border-slate-200 rounded-md p-4';
 
         const rowTitle = totalChords === 1
-            ? 'Gehörter Akkord:'
-            : `${rowIndex + 1}. Akkord:`;
+            ? ''
+            : `<div class="text-base font-bold text-slate-800 mb-2.5">${rowIndex + 1}. Akkord:</div>`;
+
+        const showSymbols = document.getElementById('toggle-symbols')?.checked === true;
 
         const groupsHtml = visibleFamilies.map(fam => {
             const buttonsHtml = CHORD_TYPES.filter(t => t.family === fam.id).map(cat => {
@@ -439,8 +441,8 @@ function renderChordRows() {
                         class="chord-btn ${stateClass}"
                         ${session.evaluated ? 'disabled' : ''}
                         onclick="selectChord(${rowIndex}, '${cat.code}')">
-                        ${cat.label}
-                        <span class="chord-short">${cat.short}</span>
+                        ${showSymbols ? cat.short : cat.label}
+                        ${showSymbols ? '' : `<span class="chord-short">${cat.short}</span>`}
                     </button>
                 `;
             }).join('');
@@ -456,9 +458,7 @@ function renderChordRows() {
         }).join('');
 
         rowEl.innerHTML = `
-            <div class="text-base font-bold text-slate-800 mb-2.5">
-                ${rowTitle}
-            </div>
+            ${rowTitle}
             ${groupsHtml}
         `;
 
