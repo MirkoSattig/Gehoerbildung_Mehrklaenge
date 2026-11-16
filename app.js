@@ -410,11 +410,11 @@ function renderChordRows() {
         const selectedCode = session.selections[rowIndex];
 
         const rowEl = document.createElement('div');
-        rowEl.className = 'bg-[#f8fafc] border border-slate-200 rounded-md p-4';
+        rowEl.className = 'bg-[#f8fafc] border border-slate-200 rounded-md p-3';
 
         const rowTitle = totalChords === 1
             ? ''
-            : `<div class="text-base font-bold text-slate-800 mb-2.5">${rowIndex + 1}. Akkord:</div>`;
+            : `<div class="text-base font-bold text-slate-800 mb-1.5">${rowIndex + 1}. Akkord:</div>`;
 
         const showSymbols = document.getElementById('toggle-symbols')?.checked === true;
 
@@ -448,9 +448,9 @@ function renderChordRows() {
             }).join('');
 
             return `
-                <div class="${showHeadings ? 'mt-3 first:mt-0' : ''}">
-                    ${showHeadings ? `<div class="text-sm font-semibold text-slate-500 mb-1.5">${fam.label}</div>` : ''}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-start gap-x-3 gap-y-1 ${showHeadings ? 'mt-1.5 first:mt-0' : ''}">
+                    ${showHeadings ? `<div class="text-sm font-semibold text-slate-500 sm:w-40 sm:flex-shrink-0 sm:pt-1.5">${fam.label}</div>` : ''}
+                    <div class="flex flex-wrap gap-1.5 flex-1">
                         ${buttonsHtml}
                     </div>
                 </div>
