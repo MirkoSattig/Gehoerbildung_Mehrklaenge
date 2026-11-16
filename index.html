@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkord-Trainer · Gehörbildung</title>
+    <!-- Lokal eingebunden (offline-fähig): Tailwind Play-Script und Alegreya Sans -->
+    <script src="vendor/tailwind-3.4.17.js"></script>
+    <link rel="stylesheet" href="vendor/fonts.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- ==========================================================================
+         SCHLICHTER HEADER
+         ========================================================================== -->
+    <header class="bg-white border-b border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-baseline justify-between">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    Akkord-Trainer
+                </h1>
+                <p class="text-base text-slate-600">
+                    Gehörbildung · Sept-, Nonen- und erweiterte Akkorde hörend unterscheiden
+                </p>
+            </div>
+        </div>
+        <nav class="max-w-4xl mx-auto px-4 sm:px-6 flex gap-1" aria-label="Modus">
+            <button type="button" class="mode-tab is-active" data-mode="train" onclick="setMode('train')">Üben</button>
+            <button type="button" class="mode-tab" data-mode="compare" onclick="setMode('compare')">Vergleichen</button>
+            <button type="button" class="mode-tab" data-mode="progress" onclick="setMode('progress')">Lernstand</button>
+        </nav>
+    </header>
+
+    <!-- ==========================================================================
+         HAUPTBEREICH
+         ========================================================================== -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <div id="mode-train" class="space-y-6">
+        <!-- EINSTELLUNGSLEISTE (Tricinium-Filterstil) -->
+        <section class="bg-[#f1f5f9] border border-slate-200 rounded-md p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+                <!-- Stufe -->
+                <div class="sm:col-span-5">
+                    <label for="select-level" class="block text-sm font-semibold text-slate-700 mb-1">
+                        Stufe
+                    </label>
+                    <select id="select-level" class="tricinium-select w-full" onchange="startNewSession()">
+                        <option value="1">Stufe 1: Einzelakkord</option>
+                        <option value="2">Stufe 2: Zwei Akkorde</option>
+                        <option value="3">Stufe 3: Akkordfolge (3 und mehr)</option>
+                        <option value="4">Stufe 4: Literaturbeispiele</option>
+                    </select>
+                </div>
+
+                <!-- Umfang -->
+                <div class="sm:col-span-3">
+                    <label for="select-count" class="block text-sm font-semibold text-slate-700 mb-1">
+                        Umfang
+                    </label>
+                    <select id="select-count" class="tricinium-select w-full" onchange="startNewSession()">
+                        <option value="5">5 Aufgaben</option>
+                        <option value="10" selected>10 Aufgaben</option>
+                        <option value="20">20 Aufgaben</option>
+                    </select>
+                </div>
+
+                <!-- Auto-Play & Neue Runde -->
+                <div class="sm:col-span-4 flex items-center justify-between sm:justify-end gap-4 pt-1 sm:pt-0">
+                    <label class="tricinium-toggle" title="Spielt das nächste Hörbeispiel automatisch ab">
+                        <input type="checkbox" id="toggle-autoplay" checked>
+                        <span class="tricinium-toggle-track">
+                            <span class="tricinium-toggle-thumb"></span>
+                        </span>
+                        <span class="text-base text-slate-700">Auto-Play</span>
+                    </label>
+
+                    <button type="button" onclick="startNewSession()"
+                        class="px-3.5 py-2 rounded-md text-base font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm">
+                        Neue Runde
+                    </button>
+                </div>
+
+                <!-- Akkordfamilien (dynamisch) -->
+                <div class="sm:col-span-12">
+                    <div class="block text-sm font-semibold text-slate-700 mb-1">Akkordfamilien</div>
+                    <div id="family-filter" class="flex flex-wrap gap-x-5 gap-y-2"></div>
+                </div>
+
+                <!-- Wiedergabe & Lernhilfen -->
+                <div class="sm:col-span-4">
+                    <label for="select-speed" class="block text-sm font-semibold text-slate-700 mb-1">Tempo</label>
+                    <select id="select-speed" class="tricinium-select w-full" onchange="applyPlaybackSpeed()">
+                        <option value="0.75">langsam (0,75×)</option>
+                        <option value="1" selected>normal (1×)</option>
+                        <option value="1.25">schnell (1,25×)</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-4">
+                    <label for="select-limit" class="block text-sm font-semibold text-slate-700 mb-1">Hörlimit pro Aufgabe</label>
+                    <select id="select-limit" class="tricinium-select w-full" onchange="updateReplayLabel()">
+                        <option value="0" selected>unbegrenzt</option>
+                        <option value="1">1× abspielen</option>
+                        <option value="2">2× abspielen</option>
+                        <option value="3">3× abspielen</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-4 pb-1.5">
+                    <label class="tricinium-toggle" title="Akkorde, die du bisher öfter verwechselt hast, kommen häufiger vor">
+                        <input type="checkbox" id="toggle-weak" onchange="startNewSession()">
+                        <span class="tricinium-toggle-track">
+                            <span class="tricinium-toggle-thumb"></span>
+                        </span>
+                        <span class="text-base text-slate-700">Schwächen öfter üben</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hinweis, wenn keine passenden Hörbeispiele vorhanden sind -->
+        <section id="empty-notice" class="hidden rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-base text-amber-950"></section>
+
+        <!-- ======================================================================
+             SPIEL-ANSICHT (AKTIVE AUFGABE)
+             ====================================================================== -->
+        <section id="view-task" class="bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
+
+            <!-- Fortschrittsleiste oben -->
+            <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+                <div class="text-base font-semibold text-slate-800">
+                    Aufgabe <span id="label-current-task">1</span> von <span id="label-total-tasks">10</span>
+                </div>
+                <div class="text-base text-slate-600">
+                    Bisher gelöst: <span id="label-score-current" class="font-semibold text-slate-900">0</span> / <span id="label-score-answered">0</span>
+                </div>
+            </div>
+            <div class="w-full bg-slate-100 h-1">
+                <div id="session-progress-bar" class="bg-[#1e3a5f] h-1 transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <!-- Minimalistischer Audio-Player -->
+            <div class="p-5 border-b border-slate-200">
+                <div class="bg-[#f8fafc] border border-slate-200 rounded-md p-4 flex flex-col sm:flex-row items-center gap-4">
+                    <!-- Play / Pause Button -->
+                    <button type="button" id="btn-audio-toggle" onclick="toggleAudioPlayback()"
+                        class="w-11 h-11 rounded-md bg-[#0284c7] hover:bg-[#0369a1] text-white flex items-center justify-center transition-colors shadow-sm flex-shrink-0"
+                        aria-label="Abspielen oder Pausieren">
+                        <svg id="icon-audio-play" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                        </svg>
+                        <svg id="icon-audio-pause" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.5 3.5A1.5 1.5 0 017 2h1.5a1.5 1.5 0 011.5 1.5v13a1.5 1.5 0 01-1.5 1.5H7a1.5 1.5 0 01-1.5-1.5v-13zm6.5 0A1.5 1.5 0 0113.5 2H15a1.5 1.5 0 011.5 1.5v13A1.5 1.5 0 0115 18h-1.5a1.5 1.5 0 01-1.5-1.5v-13z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Fortschrittsbalken & Zeitanzeige -->
+                    <div class="flex-1 w-full flex items-center gap-3">
+                        <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden cursor-pointer" id="audio-seek-container" onclick="seekAudio(event)">
+                            <div id="audio-seek-fill" class="bg-[#0284c7] h-full w-0 transition-all duration-75"></div>
+                        </div>
+                        <span id="audio-time-display" class="text-sm text-slate-600 tabular-nums min-w-[4.5rem] text-right">
+                            0:00 / 0:00
+                        </span>
+                    </div>
+
+                    <!-- Nochmal hören Button -->
+                    <button type="button" onclick="replayAudioFromStart()"
+                        class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-base text-slate-700 transition-colors inline-flex items-center gap-1.5 flex-shrink-0">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span id="label-replay">Nochmal hören</span>
+                    </button>
+                </div>
+
+                <div id="badge-placeholder" class="hidden mt-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded px-2.5 py-1">
+                    Platzhalter-Klang (Synthese): Die Datei <span id="badge-placeholder-file" class="font-mono"></span> wurde nicht gefunden.
+                </div>
+
+                <!-- Nativer Audio-Player im Hintergrund -->
+                <audio id="audio-player" preload="auto"></audio>
+            </div>
+
+            <!-- Antwort-Auswahlbereich (Dynamische Zeilen mit kompakten Buttons) -->
+            <div class="p-5 space-y-5">
+                <div id="chord-rows-container" class="space-y-4">
+                    <!-- Dynamisch erzeugt je nach Anzahl der Akkorde in der Aufgabe -->
+                </div>
+
+                <!-- Rückmeldungs-Zeile & Optionaler Literaturhinweis -->
+                <div id="feedback-box" class="hidden rounded-md border px-4 py-3 text-base"></div>
+
+                <!-- Aktionsleiste unten -->
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                    <span class="text-sm text-slate-500 hidden sm:inline">
+                        Leertaste: Abspielen · Enter: Prüfen / Weiter
+                    </span>
+
+                    <div class="ml-auto flex items-center gap-3">
+                        <button type="button" id="btn-check" onclick="checkCurrentAnswer()" disabled
+                            class="px-5 py-2 rounded-md text-base font-semibold text-white bg-[#0284c7] hover:bg-[#0369a1] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors shadow-sm">
+                            Antwort prüfen
+                        </button>
+
+                        <button type="button" id="btn-next" onclick="nextTask()"
+                            class="hidden px-5 py-2 rounded-md text-base font-semibold text-white bg-[#1e3a5f] hover:bg-[#162c49] transition-colors shadow-sm">
+                            Nächste Aufgabe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             AUSWERTUNGS-ANSICHT AM ENDE EINER RUNDE
+             ====================================================================== -->
+        <section id="view-summary" class="hidden bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
+            <div class="bg-[#f1f5f9] border-b border-slate-200 px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">
+                        Auswertung der Lerneinheit
+                    </h2>
+                    <p id="summary-subtitle" class="text-lg text-slate-700 mt-0.5">
+                        Sie haben 0 von 10 Aufgaben richtig gelöst.
+                    </p>
+                </div>
+                <button type="button" onclick="startNewSession()"
+                    class="px-4 py-2 rounded-md text-base font-semibold text-white bg-[#1e3a5f] hover:bg-[#162c49] transition-colors shadow-sm self-start sm:self-auto">
+                    Neue Runde starten
+                </button>
+            </div>
+
+            <div id="summary-stats" class="p-5 border-b border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+            <div class="p-5 overflow-x-auto">
+                <table class="w-full text-left border-collapse text-base">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-sm text-slate-600 bg-slate-50">
+                            <th class="py-2.5 px-3 font-semibold">#</th>
+                            <th class="py-2.5 px-3 font-semibold">Hörbeispiel</th>
+                            <th class="py-2.5 px-3 font-semibold">Ihre Antwort</th>
+                            <th class="py-2.5 px-3 font-semibold">Richtige Lösung</th>
+                            <th class="py-2.5 px-3 font-semibold">Literatur / Hinweis</th>
+                            <th class="py-2.5 px-3 font-semibold text-right">Ergebnis</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-table-body" class="divide-y divide-slate-200">
+                        <!-- Dynamisch gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        </div><!-- /mode-train -->
+
+        <!-- ======================================================================
+             VERGLEICHSMODUS
+             ====================================================================== -->
+        <div id="mode-compare" class="hidden space-y-6">
+            <section class="bg-white border border-slate-200 rounded-md shadow-sm p-5 space-y-4">
+                <p class="text-base text-slate-700">
+                    Wähle zwei Akkordtypen und höre sie direkt nacheinander. Es werden Einzelakkord-Beispiele
+                    aus der Hörbeispiel-Datenbank verwendet (bei jedem Abspielen ggf. ein anderes).
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cmp-a" class="block text-sm font-semibold text-slate-700 mb-1">Akkord A</label>
+                        <select id="cmp-a" class="tricinium-select w-full"></select>
+                    </div>
+                    <div>
+                        <label for="cmp-b" class="block text-sm font-semibold text-slate-700 mb-1">Akkord B</label>
+                        <select id="cmp-b" class="tricinium-select w-full"></select>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" onclick="playCompare('ab')" class="px-4 py-2 rounded-md text-base font-semibold text-white bg-[#0284c7] hover:bg-[#0369a1] transition-colors shadow-sm">▶ A → B</button>
+                    <button type="button" onclick="playCompare('a')" class="px-3.5 py-2 rounded-md text-base font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50">Nur A</button>
+                    <button type="button" onclick="playCompare('b')" class="px-3.5 py-2 rounded-md text-base font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50">Nur B</button>
+                    <span id="cmp-status" class="text-base text-slate-600"></span>
+                </div>
+                <div id="cmp-info" class="text-sm text-slate-600"></div>
+            </section>
+        </div>
+
+        <!-- ======================================================================
+             LERNSTAND
+             ====================================================================== -->
+        <div id="mode-progress" class="hidden space-y-6">
+            <section class="bg-white border border-slate-200 rounded-md shadow-sm p-5">
+                <div class="flex items-center justify-between gap-4 mb-3">
+                    <h2 class="text-xl font-bold text-slate-900">Gespeicherter Lernstand</h2>
+                    <button type="button" onclick="resetStats()" class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-base text-slate-700">Zurücksetzen</button>
+                </div>
+                <p class="text-sm text-slate-500 mb-3">Wird nur in diesem Browser gespeichert (localStorage).</p>
+                <div id="progress-body" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- ==========================================================================
+         ANWENDUNGSLOGIK & AUDIO-POOL
+         ========================================================================== -->
+    <script src="audio/manifest.js"></script>
+    <script src="chords.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

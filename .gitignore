@@ -1,0 +1,58 @@
+# --- Geheimnisse / sensible Dateien ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+id_ed25519*
+secrets.*
+credentials*.json
+*.secret
+
+# --- Betriebssystem ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- Editoren / IDEs ---
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- Claude Code (lokale Einstellungen) ---
+.claude/settings.local.json
+
+# --- Python (tools/check_manifest.py) ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Node (falls später ein Build-Werkzeug dazukommt) ---
+node_modules/
+npm-debug.log*
+
+# --- Logs, temporäre Dateien, Backups ---
+*.log
+*.tmp
+*.bak
+
+# --- Audio-Rohmaterial (Produktionsprojekte); fertige MP3s in audio/ werden mitversioniert ---
+*.wav.asd
+*.reapeaks
+*.pkf
+*.sesx
+*.als
+*.flp
+*.logicx/
+*.cpr
+*.rpp-bak
+Backup/
+Media Files/
